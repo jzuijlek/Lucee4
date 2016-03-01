@@ -4,17 +4,17 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either 
+ * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public 
+ *
+ * You should have received a copy of the GNU Lesser General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  **/
 package lucee.commons.net.http.httpclient4;
 
@@ -92,7 +92,7 @@ import org.apache.http.protocol.BasicHttpContext;
 import org.apache.http.protocol.HttpContext;
 
 public class HTTPEngineImpl {
-	
+
 	/**
 	 * does a http get request
 	 * @param url
@@ -138,19 +138,19 @@ public class HTTPEngineImpl {
     	HttpPost post = new HttpPost(url.toExternalForm());
     	return _invoke(url,post, username, password, timeout, redirect, charset, useragent, proxy, headers,null);
     }
-    
 
-    
+
+
 
     public static HTTPResponse post(URL url, String username,String password, long timeout, boolean redirect,
             String charset, String useragent,
             ProxyData proxy, lucee.commons.net.http.Header[] headers,Map<String,String> formfields) throws IOException {
     	HttpPost post = new HttpPost(url.toExternalForm());
-    	
+
     	return _invoke(url,post, username, password, timeout, redirect, charset, useragent, proxy, headers,formfields);
     }
-    
-    
+
+
     /**
 	 * does a http put request
      * @param url
@@ -167,7 +167,7 @@ public class HTTPEngineImpl {
      * @param body
      * @return
      * @throws IOException
-     * @throws PageException 
+     * @throws PageException
      */
     public static HTTPResponse put(URL url, String username,String password, long timeout, boolean redirect,
     		String mimetype,String charset, String useragent,
@@ -175,9 +175,9 @@ public class HTTPEngineImpl {
 		HttpPut put= new HttpPut(url.toExternalForm());
 		setBody(put,body,mimetype,charset);
         return _invoke(url,put, username, password, timeout, redirect, charset, useragent, proxy, headers,null);
-		 
+
 	}
-    
+
     /**
 	 * does a http delete request
      * @param url
@@ -198,7 +198,7 @@ public class HTTPEngineImpl {
             String charset, String useragent,
             ProxyData proxy, lucee.commons.net.http.Header[] headers) throws IOException {
     	HttpDelete delete= new HttpDelete(url.toExternalForm());
-		return _invoke(url,delete, username, password, timeout, redirect, charset, useragent, proxy, headers,null);    
+		return _invoke(url,delete, username, password, timeout, redirect, charset, useragent, proxy, headers,null);
 	}
 
     /**
@@ -221,45 +221,45 @@ public class HTTPEngineImpl {
             String charset, String useragent,
             ProxyData proxy, lucee.commons.net.http.Header[] headers) throws IOException {
     	HttpHead head= new HttpHead(url.toExternalForm());
-		return _invoke(url,head, username, password, timeout, redirect, charset, useragent, proxy, headers,null);    
+		return _invoke(url,head, username, password, timeout, redirect, charset, useragent, proxy, headers,null);
 	}
-    
-	
+
+
 
 	public static lucee.commons.net.http.Header header(String name, String value) {
 		return new HeaderImpl(name, value);
 	}
-	
+
 
 	private static Header toHeader(lucee.commons.net.http.Header header) {
 		if(header instanceof Header) return (Header) header;
 		if(header instanceof HeaderWrap) return ((HeaderWrap)header).header;
 		return new HeaderImpl(header.getName(), header.getValue());
 	}
-	
+
 	private static HTTPResponse _invoke(URL url,HttpUriRequest request,String username,String password, long timeout, boolean redirect,
             String charset, String useragent,
             ProxyData proxy, lucee.commons.net.http.Header[] headers, Map<String,String> formfields) throws IOException {
-    	
+
 		HttpClientBuilder builder = HttpClients.custom();
-    	
+
     	// redirect
     	if(redirect)  builder.setRedirectStrategy(new DefaultRedirectStrategy());
     	else builder.disableRedirectHandling();
-    	
+
     	HttpHost hh=new HttpHost(url.getHost(),url.getPort());
     	setHeader(request,headers);
     	if(CollectionUtil.isEmpty(formfields))setContentType(request,charset);
     	setFormFields(request,formfields,charset);
     	setUserAgent(request,useragent);
     	if(timeout>0)Http41.setTimeout(builder,TimeSpanImpl.fromMillis(timeout));
-    	HttpContext context=setCredentials(builder,hh, username, password,false);  
+    	HttpContext context=setCredentials(builder,hh, username, password,false);
     	setProxy(builder,request,proxy);
     	CloseableHttpClient client = builder.build();
         if(context==null)context = new BasicHttpContext();
         return new HTTPResponse4Impl(url,context,request,client.execute(request,context));
     }
-	
+
 	private static void setFormFields(HttpUriRequest request, Map<String, String> formfields, String charset) throws IOException {
 		if(!CollectionUtil.isEmpty(formfields)) {
 			if(!(request instanceof HttpPost)) throw new IOException("form fields are only suppported for post request");
@@ -272,13 +272,13 @@ public class HTTPEngineImpl {
     			list.add(new BasicNameValuePair(e.getKey(),e.getValue()));
     		}
     		if(StringUtil.isEmpty(charset)) charset=((PageContextImpl)ThreadLocalPageContext.get()).getWebCharset().name();
-    		
+
     		post.setEntity(new org.apache.http.client.entity.UrlEncodedFormEntity(list,charset));
     	}
 	}
-	
-	
-	
+
+
+
 
 	private static void setUserAgent(HttpMessage hm, String useragent) {
         if(useragent!=null)hm.setHeader("User-Agent",useragent);
@@ -291,7 +291,7 @@ public class HTTPEngineImpl {
 	private static void setHeader(HttpMessage hm,lucee.commons.net.http.Header[] headers) {
 		addHeader(hm, headers);
 	}
-	
+
 	private static void addHeader(HttpMessage hm,lucee.commons.net.http.Header[] headers) {
 		if(headers!=null) {
         	for(int i=0;i<headers.length;i++)
@@ -306,13 +306,13 @@ public class HTTPEngineImpl {
             if(password==null)password="";
             CredentialsProvider cp = new BasicCredentialsProvider();
             builder.setDefaultCredentialsProvider(cp);
-            
+
             cp.setCredentials(
-                new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT), 
+                new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
                 new UsernamePasswordCredentials(username,password));
-            
-            
-            
+
+
+
             BasicHttpContext httpContext = new BasicHttpContext();
             if(preAuth) {
 	            AuthCache authCache = new BasicAuthCache();
@@ -323,16 +323,16 @@ public class HTTPEngineImpl {
         }
         return null;
 	}
-	
+
 	public static void setNTCredentials(HttpClientBuilder builder, String username,String password, String workStation, String domain) {
         // set Username and Password
         if(!StringUtil.isEmpty(username,true)) {
             if(password==null)password="";
             CredentialsProvider cp = new BasicCredentialsProvider();
             builder.setDefaultCredentialsProvider(cp);
-            
+
             cp.setCredentials(
-                new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT), 
+                new AuthScope(AuthScope.ANY_HOST, AuthScope.ANY_PORT),
                 new NTCredentials(username,password,workStation,domain));
         }
 	}
@@ -355,7 +355,7 @@ public class HTTPEngineImpl {
                 // Allow TLSv1 protocol only
                 SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(
                     sslContext,
-                    new String[] { "TLSv1" },
+                    new String[] { "TLSv1", "TLSv1.1", "TLSv1.2" },
                     null,
                     SSLConnectionSocketFactory.getDefaultHostnameVerifier());
 
@@ -373,18 +373,18 @@ public class HTTPEngineImpl {
         if(ProxyDataImpl.isValid(proxy)) {
         	HttpHost host = new HttpHost(proxy.getServer(), proxy.getPort()==-1?80:proxy.getPort());
         	builder.setProxy(host);
-        	
+
         	// username/password
-        	if(!StringUtil.isEmpty(proxy.getUsername())) {   
+        	if(!StringUtil.isEmpty(proxy.getUsername())) {
         		CredentialsProvider cp = new BasicCredentialsProvider();
                 builder.setDefaultCredentialsProvider(cp);
                 cp.setCredentials(
                         new AuthScope(proxy.getServer(), proxy.getPort()),
                         new UsernamePasswordCredentials(proxy.getUsername(),proxy.getPassword()));
             }
-        } 
+        }
 	}
-	
+
 	public static void addCookie(CookieStore cookieStore, String domain, String name, String value, String path, String charset) {
 		if(ReqRspUtil.needEncoding(name,false)) name=ReqRspUtil.encode(name, charset);
 		if(ReqRspUtil.needEncoding(value,false)) value=ReqRspUtil.encode(value, charset);
@@ -419,7 +419,7 @@ public class HTTPEngineImpl {
     		throw ExceptionUtil.toIOException(e);
     	}
     }
-	
+
 
 	public static Entity getEmptyEntity(String contentType) {
 		return new EmptyHttpEntity(contentType);
@@ -437,5 +437,5 @@ public class HTTPEngineImpl {
 		return new ResourceHttpEntity(res,contentType);
 	}
 
-	
+
 }
