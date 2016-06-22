@@ -152,7 +152,6 @@ import lucee.runtime.type.StructImpl;
 import lucee.runtime.type.dt.DateTime;
 import lucee.runtime.type.dt.DateTimeImpl;
 import lucee.runtime.type.dt.TimeSpan;
-import lucee.runtime.type.dt.TimeSpanImpl;
 import lucee.runtime.type.scope.Cluster;
 import lucee.runtime.type.scope.ClusterEntryImpl;
 import lucee.runtime.type.util.ComponentUtil;
@@ -4679,7 +4678,7 @@ public final class Admin extends TagImpl implements DynamicAttributes {
 			for(int i=0;i<webs.length;i++){
 				ConfigWebImpl cw=(ConfigWebImpl) webs[i];
 				try{
-				sct.setEL(cw.getLabel(), ((CFMLFactoryImpl)cw.getFactory()).getInfo());
+				sct.setEL(cw.getId(), ((CFMLFactoryImpl)cw.getFactory()).getInfo());
 				}
 				catch(Throwable t){}
 			}
@@ -4705,12 +4704,21 @@ public final class Admin extends TagImpl implements DynamicAttributes {
 		
 		ConfigServer cs=(ConfigServer) config;
 		ConfigWeb[] webs = cs.getConfigWebs();
+		boolean has=false;
 		for(int i=0;i<webs.length;i++){
 			ConfigWebImpl cw=(ConfigWebImpl) webs[i];
 			if(!cw.getId().equals(contextId)) continue;
 			 ((CFMLFactoryImpl)cw.getFactory()).stopThread(threadId,stopType);
+			 has=true;
 			 break;
-				
+		}
+		if(!has) {
+			for(int i=0;i<webs.length;i++){
+				ConfigWebImpl cw=(ConfigWebImpl) webs[i];
+				if(!cw.getLabel().equals(contextId)) continue;
+				 ((CFMLFactoryImpl)cw.getFactory()).stopThread(threadId,stopType);
+				 break;
+			}
 		}
 	}
 	

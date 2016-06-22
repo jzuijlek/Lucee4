@@ -58,7 +58,6 @@
 	<classpathentry kind="lib" path="/Lucee-Libs/jfreechart-patch.jar"/>
 	<classpathentry kind="lib" path="/Lucee-Libs/jfreechart.jar"/>
 	<classpathentry kind="lib" path="/Lucee-Libs/jmimemagic.jar"/>
-	<classpathentry kind="lib" path="/Lucee-Libs/joda-time.jar"/>
 	<classpathentry kind="lib" path="/Lucee-Libs/jpedal_gpl.jar"/>
 	<classpathentry kind="lib" path="/Lucee-Libs/jta.jar"/>
 	<classpathentry kind="lib" path="/Lucee-Libs/jtds.jar"/>
@@ -109,6 +108,6 @@
 	<classpathentry kind="lib" path="/Lucee-Libs/javasysmon.jar"/>
 	<classpathentry kind="lib" path="/Lucee-Libs/slf4j-nop.jar"/>
 	<classpathentry kind="lib" path="/Lucee-Libs/jcifs.jar"/>
-	<classpathentry kind="lib" path="/Users/mic/Test/gelf/lib/ext/gelfj-1.1.12.jar"/>
+	<classpathentry kind="lib" path="/Lucee-Libs/jsch-0.1.53.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

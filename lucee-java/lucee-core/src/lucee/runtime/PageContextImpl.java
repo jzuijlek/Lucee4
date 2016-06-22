@@ -115,6 +115,7 @@ import lucee.runtime.exp.PageServletException;
 import lucee.runtime.functions.dynamicEvaluation.Serialize;
 import lucee.runtime.interpreter.CFMLExpressionInterpreter;
 import lucee.runtime.interpreter.VariableInterpreter;
+import lucee.runtime.listener.AppListenerUtil;
 import lucee.runtime.listener.ApplicationContext;
 import lucee.runtime.listener.ApplicationContextPro;
 import lucee.runtime.listener.ApplicationListener;
@@ -287,7 +288,7 @@ public final class PageContextImpl extends PageContext implements Sizeable {
     // Pools
     private ErrorPagePool errorPagePool=new ErrorPagePool();
 	private TagHandlerPool tagHandlerPool;
-	private FTPPool ftpPool=new FTPPoolImpl();
+	private FTPPoolImpl ftpPool=new FTPPoolImpl();
 	
 	private Component activeComponent;
 	private UDF activeUDF;
@@ -332,6 +333,8 @@ public final class PageContextImpl extends PageContext implements Sizeable {
 	private PageException pe;
 
 	private Throwable requestTimeoutException;
+
+	private int appListenerType=AppListenerUtil.TYPE_ALL;
 
 
 	public long sizeOf() {
@@ -473,7 +476,7 @@ public final class PageContextImpl extends PageContext implements Sizeable {
 		requestId=counter++;
 		rsp.setContentType("text/html; charset=UTF-8");
 		this.isChild=isChild;
-		
+		appListenerType=AppListenerUtil.TYPE_ALL;
         //rsp.setHeader("Connection", "close");
         applicationContext=defaultApplicationContext;
         
@@ -2769,6 +2772,9 @@ public final class PageContextImpl extends PageContext implements Sizeable {
 
     @Override
     public FTPPool getFTPPool() {
+        return null;
+    }
+    public FTPPoolImpl getFTPPoolImpl() {
         return ftpPool;
     }
 
@@ -2979,7 +2985,7 @@ public final class PageContextImpl extends PageContext implements Sizeable {
 
 	@Override
 	public Object evaluate(String expression) throws PageException {
-		return new CFMLExpressionInterpreter().interpret(this,expression);
+		return new CFMLExpressionInterpreter(false).interpret(this,expression);
 	}
 	
 	@Override
@@ -3143,6 +3149,7 @@ public final class PageContextImpl extends PageContext implements Sizeable {
 	 * @throws PageException
 	 */
 	public ORMSession getORMSession(boolean create) throws PageException {
+		
 		if(ormSession==null || !ormSession.isValid())	{
 			if(!create) return null;
 			ormSession=config.getORMEngine(this).createSession(this);
@@ -3151,8 +3158,6 @@ public final class PageContextImpl extends PageContext implements Sizeable {
 		manager.add(this,ormSession);
 		
 		return ormSession;
-		
-		
 	}
 
 	public ClassLoader getClassLoader() throws IOException {
@@ -3307,6 +3312,15 @@ public final class PageContextImpl extends PageContext implements Sizeable {
 	public void registerLazyStatement(Statement s) {
 		if(lazyStats==null)lazyStats=new ArrayList<Statement>();
 		lazyStats.add(s);
+	}
+
+
+
+	public void setAppListenerType(int appListenerType) {
+		this.appListenerType=appListenerType;
+	}
+	public int getAppListenerType() {
+		return appListenerType;
 	}
 
 

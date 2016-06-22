@@ -1363,10 +1363,16 @@ public final class ConfigWebFactory extends ConfigFactory {
 		_getDotNotationUpperCase(sb,config.getServerFunctionMapping());
 		_getDotNotationUpperCase(sb,config.getTagMapping());
 		_getDotNotationUpperCase(sb,config.getServerTagMapping());
-		
+
 		// suppress ws before arg
 		sb.append(config.getSuppressWSBeforeArg());
 		sb.append(';');
+
+		// externalize strings
+		sb.append(config.getExternalizeStringGTE());
+		sb.append(';');
+		
+		// output
 		sb.append(config.getDefaultFunctionOutput());
 		sb.append(';');
 
@@ -2795,9 +2801,10 @@ public final class ConfigWebFactory extends ConfigFactory {
 				createFileFromResourceEL("/resource/library/function/trace.cfm", f);
 
 			f = dir.getRealResource("queryExecute.cfm");
-			if (!f.exists() || doNew)
-				createFileFromResourceEL("/resource/library/function/queryExecute.cfm", f);
-
+			//if (!f.exists() || doNew)
+			//	createFileFromResourceEL("/resource/library/function/queryExecute.cfm", f);
+			if(f.exists())
+				delete(dir, "queryExecute.cfm");
 			
 			f = dir.getRealResource("transactionCommit.cfm");
 			if (!f.exists() || doNew)

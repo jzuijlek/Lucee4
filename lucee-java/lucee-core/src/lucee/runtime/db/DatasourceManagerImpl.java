@@ -146,7 +146,7 @@ public final class DatasourceManagerImpl implements DataSourceManager {
 	@Override
 	public void releaseConnection(PageContext pc,DatasourceConnection dc) {
 		if(autoCommit ) {
-			if(((PageContextImpl)pc).getStopPosition()!=null) {
+			if(pc!=null && ((PageContextImpl)pc).getStopPosition()!=null) {
 				IOUtil.closeEL(dc.getConnection());
 			}
 			else
@@ -253,6 +253,7 @@ public final class DatasourceManagerImpl implements DataSourceManager {
 	            catch (SQLException e) {
 	                ExceptionHandler.printStackTrace(e);
 	            }
+	        	//releaseConnection(null, dc);
     		}
             transConns.clear();
         }

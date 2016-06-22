@@ -65,6 +65,9 @@ public final class ClassUtil {
 			isRef=true;
 		}
 
+		if(lcClassName.equals("void") || className.equals("[V"))	{ 
+			return void.class; 
+		}
 		if(lcClassName.equals("boolean") || className.equals("[Z"))	{ 
 			if(isRef) return Boolean.class;
 			return boolean.class; 
@@ -460,34 +463,47 @@ public final class ClassUtil {
             //print(bytes);
             int first=is.read();
             int second=is.read();
-             boolean rtn=(first==ICF && second==I33) || (first==ICA && second==IFE && is.read()==IBA && is.read()==IBE);
+             boolean rtn=(first==ICA && second==IFE && is.read()==IBA && is.read()==IBE);
             
         is.reset(); 
         return rtn; 
     }
     
+    public static boolean isEncryptedBytecode(InputStream is) throws IOException { 
+        if(!is.markSupported()) 
+                throw new IOException("can only read input streams that support mark/reset"); 
+        is.mark(-1); 
+        //print(bytes);
+        int first=is.read();
+        int second=is.read();
+         boolean rtn=(first==ICF && second==I33);
+        
+	    is.reset(); 
+	    return rtn; 
+	}
+    
 
     public static boolean isBytecode(byte[] barr){ 
         if(barr.length<4) return false;
-        return (barr[0]==BCF && barr[1]==B33) || (barr[0]==BCA && barr[1]==BFE && barr[2]==BBA && barr[3]==BBE); 
+        return (barr[0]==BCA && barr[1]==BFE && barr[2]==BBA && barr[3]==BBE); 
     }
     public static boolean isRawBytecode(byte[] barr){ 
         if(barr.length<4) return false;
         return (barr[0]==BCA && barr[1]==BFE && barr[2]==BBA && barr[3]==BBE); 
     }
     
-    public static boolean hasCF33Prefix(byte[] barr) { 
+    public static boolean isEncryptedBytecode(byte[] barr) { 
         if(barr.length<4) return false;
         return (barr[0]==BCF && barr[1]==B33); 
     }
     
-	public static byte[] removeCF33Prefix(byte[] barr) {
+	/*public static byte[] removeCF33Prefix(byte[] barr) {
 		if(!hasCF33Prefix(barr)) return barr;
     	
 		byte[] dest = new byte[barr.length-10];
 		System.arraycopy(barr, 10, dest, 0, 10);
 		return dest;
-	}
+	}*/
 
 	public static String getName(Class clazz) {
 		if(clazz.isArray()){
