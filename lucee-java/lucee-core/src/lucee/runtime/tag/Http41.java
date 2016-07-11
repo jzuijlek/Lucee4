@@ -4,17 +4,17 @@
  *
  * This library is free software; you can redistribute it and/or
  * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation; either 
+ * License as published by the Free Software Foundation; either
  * version 2.1 of the License, or (at your option) any later version.
- * 
+ *
  * This library is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
  * Lesser General Public License for more details.
- * 
- * You should have received a copy of the GNU Lesser General Public 
+ *
+ * You should have received a copy of the GNU Lesser General Public
  * License along with this library.  If not, see <http://www.gnu.org/licenses/>.
- * 
+ *
  **/
 package lucee.runtime.tag;
 
@@ -110,26 +110,26 @@ import org.apache.http.protocol.HttpContext;
 // MUST change behavor of mltiple headers now is a array, it das so?
 
 /**
-* Lets you execute HTTP POST and GET operations on files. Using cfhttp, you can execute standard 
-*   GET operations and create a query object from a text file. POST operations lets you upload MIME file 
+* Lets you execute HTTP POST and GET operations on files. Using cfhttp, you can execute standard
+*   GET operations and create a query object from a text file. POST operations lets you upload MIME file
 *   types to a server, or post cookie, formfield, URL, file, or CGI variables directly to a specified server.
 *
 *
 *
-* 
+*
 **/
 public final class Http41 extends BodyTagImpl implements Http {
 
 	public static final String MULTIPART_RELATED = "multipart/related";
 	public static final String MULTIPART_FORM_DATA = "multipart/form-data";
-	
-	
-	
+
+
+
     /**
      * Maximum redirect count (5)
      */
     public static final short MAX_REDIRECT=15;
-    
+
     /**
      * Constant value for HTTP Status Code "moved Permanently 301"
      */
@@ -142,14 +142,14 @@ public final class Http41 extends BodyTagImpl implements Http {
      * Constant value for HTTP Status Code "see other 303"
      */
     public static final int STATUS_REDIRECT_SEE_OTHER=303;
-    
+
 
     public static final int STATUS_REDIRECT_TEMPORARY_REDIRECT = 307;
 
 
-    	
-    
-    
+
+
+
 
 	private static final short METHOD_GET=0;
 	private static final short METHOD_POST=1;
@@ -159,50 +159,50 @@ public final class Http41 extends BodyTagImpl implements Http {
 	private static final short METHOD_OPTIONS=5;
 	private static final short METHOD_TRACE=6;
 	private static final short METHOD_PATCH=7;
-	
+
 	private static final String NO_MIMETYPE="Unable to determine MIME type of file.";
-	
+
 	private static final short GET_AS_BINARY_NO=0;
 	private static final short GET_AS_BINARY_YES=1;
 	private static final short GET_AS_BINARY_AUTO=2;
 
 	private static final Key STATUSCODE = KeyConstants._statuscode;
 	private static final Key CHARSET = KeyConstants._charset;
-	
+
 	private static final Key ERROR_DETAIL = KeyImpl.intern("errordetail");
 	private static final Key STATUS_CODE = KeyImpl.intern("status_code");
 	private static final Key STATUS_TEXT = KeyImpl.intern("status_text");
 	private static final Key HTTP_VERSION = KeyImpl.intern("http_version");
-	
+
 
 	private static final Key FILE_CONTENT = KeyImpl.intern("filecontent");
 	private static final Key EXPLANATION = KeyImpl.intern("explanation");
 	private static final Key RESPONSEHEADER = KeyImpl.intern("responseheader");
 	private static final Key SET_COOKIE = KeyImpl.intern("set-cookie");
-	
+
 	private static final short AUTH_TYPE_BASIC = 0;
 	private static final short AUTH_TYPE_NTLM = 1;
 
-	
-	
-	
+
+
+
 	static {
 	    //Protocol myhttps = new Protocol("https", new EasySSLProtocolSocketFactory(), 443);
 	    //Protocol.registerProtocol("https", new Protocol("https", new EasySSLProtocolSocketFactory(), 443));
 	}
-	
+
 
     private ArrayList<HttpParamBean> params=new ArrayList<HttpParamBean>();
-	
-	
+
+
 	/** When required by a server, a valid password. */
 	private String password;
 
 	/** Required for creating a query. Options are a tab or comma. Default is a comma. */
 	private char delimiter=',';
 
-	/** Yes or No. Default is No. For GET and POST operations, if Yes, page reference returned into the 
-	** 	fileContent internal variable has its internal URLs fully resolved, including port number, so that 
+	/** Yes or No. Default is No. For GET and POST operations, if Yes, page reference returned into the
+	** 	fileContent internal variable has its internal URLs fully resolved, including port number, so that
 	** 	links remain intact. */
 	private boolean resolveurl;
 
@@ -212,32 +212,32 @@ public final class Http41 extends BodyTagImpl implements Http {
 	/** Host name or IP address of a proxy server. */
 	private String proxyserver;
 
-	/** The filename to be used for the file that is accessed. For GET operations, defaults to the name 
+	/** The filename to be used for the file that is accessed. For GET operations, defaults to the name
 	** 	pecified in url. Enter path information in the path attribute. */
 	private String strFile;
 
-	/** The path to the directory in which a file is to be stored. If a path is not specified in a POST 
-	** 	or GET operation, a variable is created (cfhttp.fileContent) that you can use to display the results 
+	/** The path to the directory in which a file is to be stored. If a path is not specified in a POST
+	** 	or GET operation, a variable is created (cfhttp.fileContent) that you can use to display the results
 	** 	of the POST operation in a cfoutput. */
 	private String strPath;
 
-	/** Boolean indicating whether to throw an exception that can be caught by using the cftry and 
+	/** Boolean indicating whether to throw an exception that can be caught by using the cftry and
 	** 	cfcatch tags. The default is NO. */
 	private boolean throwonerror;
 
 	/** set the charset for the call. */
 	private String charset=null;
 
-	/** The port number on the proxy server from which the object is requested. Default is 80. When 
-	** 	used with resolveURL, the URLs of retrieved documents that specify a port number are automatically 
+	/** The port number on the proxy server from which the object is requested. Default is 80. When
+	** 	used with resolveURL, the URLs of retrieved documents that specify a port number are automatically
 	** 	resolved to preserve links in the retrieved document. */
 	private int proxyport=80;
 
 	/** Specifies the column names for a query when creating a query as a result of a cfhttp GET. */
 	private String[] columns;
 
-	/** The port number on the server from which the object is requested. Default is 80. When used with 
-	** 	resolveURL, the URLs of retrieved documents that specify a port number are automatically resolved to 
+	/** The port number on the server from which the object is requested. Default is 80. When used with
+	** 	resolveURL, the URLs of retrieved documents that specify a port number are automatically resolved to
 	** 	preserve links in the retrieved document. If a port number is specified in the url attribute, the port
 	** 	value overrides the value of the port attribute. */
 	private int port=-1;
@@ -245,9 +245,9 @@ public final class Http41 extends BodyTagImpl implements Http {
 	/** User agent request header. */
 	private String useragent="Lucee (CFML Engine)";
 
-	/** Required for creating a query. Indicates the start and finish of a column. Should be 
-	** 	appropriately escaped when embedded in a column. For example, if the qualifier is a double quotation 
-	** 	mark, it should be escaped as """". If there is no text qualifier in the file, specify it as " ". 
+	/** Required for creating a query. Indicates the start and finish of a column. Should be
+	** 	appropriately escaped when embedded in a column. For example, if the qualifier is a double quotation
+	** 	mark, it should be escaped as """". If there is no text qualifier in the file, specify it as " ".
 	** 	Default is the double quotation mark ("). */
 	private char textqualifier='"';
 
@@ -266,38 +266,38 @@ public final class Http41 extends BodyTagImpl implements Http {
 	/** The name to assign to a query if the a query is constructed from a file. */
 	private String name;
 
-	/** GET or POST. Use GET to download a text or binary file or to create a query from the contents 
-	** 	of a text file. Use POST to send information to a server page or a CGI program for processing. POST 
+	/** GET or POST. Use GET to download a text or binary file or to create a query from the contents
+	** 	of a text file. Use POST to send information to a server page or a CGI program for processing. POST
 	** 	requires the use of a cfhttpparam tag. */
 	private short method=METHOD_GET;
 
 	//private boolean hasBody=false;
-	
+
 	private boolean firstrowasheaders=true;
 
 	private String proxyuser=null;
 	private String proxypassword="";
 	private boolean multiPart=false;
 	private String multiPartType=MULTIPART_FORM_DATA;
-	
+
 	private short getAsBinary=GET_AS_BINARY_NO;
     private String result="cfhttp";
-    
+
     private boolean addtoken=false;
-    
+
     private short authType=AUTH_TYPE_BASIC;
     private String workStation=null;
     private String domain=null;
 	private boolean preauth=true;
-	private boolean encoded=true; 
-	
+	private boolean encoded=true;
+
 	private boolean compression=true;
 
 	/** The full path to a PKCS12 format file that contains the client certificate for the request. */
 	private String clientCert;
 	/** Password used to decrypt the client certificate. */
 	private String clientCertPassword;
-	
+
 	public Http41() {
 		// Test if library is ok
 		Class<CloseableHttpClient> clazz = CloseableHttpClient.class;
@@ -330,28 +330,28 @@ public final class Http41 extends BodyTagImpl implements Http {
 		method=METHOD_GET;
 		//hasBody=false;
 		firstrowasheaders=true;
-		
+
 		getAsBinary=GET_AS_BINARY_NO;
 		multiPart=false;
 		multiPartType=MULTIPART_FORM_DATA;
         result="cfhttp";
         addtoken=false;
-        
+
         authType=AUTH_TYPE_BASIC;
         workStation=null;
         domain=null;
-        preauth=true; 
+        preauth=true;
         encoded=true;
         compression=true;
 	}
-	
+
 	/**
 	 * @param firstrowasheaders
 	 */
 	public void setFirstrowasheaders(boolean firstrowasheaders)	{
 		this.firstrowasheaders=firstrowasheaders;
 	}
-	
+
 
 	public void setEncodeurl(boolean encoded)	{
 		this.encoded=encoded;
@@ -382,24 +382,24 @@ public final class Http41 extends BodyTagImpl implements Http {
 	}
 
 	/** set the value resolveurl
-	*  Yes or No. Default is No. For GET and POST operations, if Yes, page reference returned into the 
-	* 	fileContent internal variable has its internal URLs fully resolved, including port number, so that 
+	*  Yes or No. Default is No. For GET and POST operations, if Yes, page reference returned into the
+	* 	fileContent internal variable has its internal URLs fully resolved, including port number, so that
 	* 	links remain intact.
 	* @param resolveurl value to set
 	**/
 	public void setResolveurl(boolean resolveurl)	{
 		this.resolveurl=resolveurl;
 	}
-	
+
 	public void setPreauth(boolean preauth)	{
 		this.preauth=preauth;
 	}
-	
-	
+
+
 
 	/** set the value timeout
 	* @param timeout value to set
-	 * @throws ExpressionException 
+	 * @throws ExpressionException
 	**/
 	public void setTimeout(Object timeout) throws PageException	{
 		if(timeout instanceof TimeSpan)
@@ -409,7 +409,7 @@ public final class Http41 extends BodyTagImpl implements Http {
 			int i = Caster.toIntValue(timeout);
 			if(i<0)
 				throw new ApplicationException("invalid value ["+i+"] for attribute timeout, value must be a positive integer greater or equal than 0");
-			
+
 			this.timeout=new TimeSpanImpl(0, 0, 0, i);
 		}
 	}
@@ -421,10 +421,10 @@ public final class Http41 extends BodyTagImpl implements Http {
 	public void setProxyserver(String proxyserver)	{
 		this.proxyserver=proxyserver;
 	}
-	
+
 	/** set the value proxyport
-	*  The port number on the proxy server from which the object is requested. Default is 80. When 
-	* 	used with resolveURL, the URLs of retrieved documents that specify a port number are automatically 
+	*  The port number on the proxy server from which the object is requested. Default is 80. When
+	* 	used with resolveURL, the URLs of retrieved documents that specify a port number are automatically
 	* 	resolved to preserve links in the retrieved document.
 	* @param proxyport value to set
 	**/
@@ -433,7 +433,7 @@ public final class Http41 extends BodyTagImpl implements Http {
 	}
 
 	/** set the value file
-	*  The filename to be used for the file that is accessed. For GET operations, defaults to the name 
+	*  The filename to be used for the file that is accessed. For GET operations, defaults to the name
 	* 	pecified in url. Enter path information in the path attribute.
 	* @param file value to set
 	**/
@@ -442,7 +442,7 @@ public final class Http41 extends BodyTagImpl implements Http {
 	}
 
 	/** set the value throwonerror
-	*  Boolean indicating whether to throw an exception that can be caught by using the cftry and 
+	*  Boolean indicating whether to throw an exception that can be caught by using the cftry and
 	* 	cfcatch tags. The default is NO.
 	* @param throwonerror value to set
 	**/
@@ -467,8 +467,8 @@ public final class Http41 extends BodyTagImpl implements Http {
 	}
 
 	/** set the value port
-	*  The port number on the server from which the object is requested. Default is 80. When used with 
-	* 	resolveURL, the URLs of retrieved documents that specify a port number are automatically resolved to 
+	*  The port number on the server from which the object is requested. Default is 80. When used with
+	* 	resolveURL, the URLs of retrieved documents that specify a port number are automatically resolved to
 	* 	preserve links in the retrieved document. If a port number is specified in the url attribute, the port
 	* 	value overrides the value of the port attribute.
 	* @param port value to set
@@ -486,9 +486,9 @@ public final class Http41 extends BodyTagImpl implements Http {
 	}
 
 	/** set the value textqualifier
-	*  Required for creating a query. Indicates the start and finish of a column. Should be 
-	* 	appropriately escaped when embedded in a column. For example, if the qualifier is a double quotation 
-	* 	mark, it should be escaped as """". If there is no text qualifier in the file, specify it as " ". 
+	*  Required for creating a query. Indicates the start and finish of a column. Should be
+	* 	appropriately escaped when embedded in a column. For example, if the qualifier is a double quotation
+	* 	mark, it should be escaped as """". If there is no text qualifier in the file, specify it as " ".
 	* 	Default is the double quotation mark (").
 	* @param textqualifier value to set
 	**/
@@ -530,8 +530,8 @@ public final class Http41 extends BodyTagImpl implements Http {
 	}
 
 	/** set the value path
-	*  The path to the directory in which a file is to be stored. If a path is not specified in a POST 
-	* 	or GET operation, a variable is created (cfhttp.fileContent) that you can use to display the results 
+	*  The path to the directory in which a file is to be stored. If a path is not specified in a POST
+	* 	or GET operation, a variable is created (cfhttp.fileContent) that you can use to display the results
 	* 	of the POST operation in a cfoutput.
 	* @param path value to set
 	**/
@@ -546,7 +546,7 @@ public final class Http41 extends BodyTagImpl implements Http {
 	public void setName(String name)	{
 		this.name=name;
 	}
-	
+
 	public void setAuthtype(String strAuthType) throws ExpressionException{
 		if(StringUtil.isEmpty(strAuthType,true)) return;
 		strAuthType=strAuthType.trim();
@@ -581,8 +581,8 @@ public final class Http41 extends BodyTagImpl implements Http {
 	}
 
 	/** set the value method
-	*  GET or POST. Use GET to download a text or binary file or to create a query from the contents 
-	* 	of a text file. Use POST to send information to a server page or a CGI program for processing. POST 
+	*  GET or POST. Use GET to download a text or binary file or to create a query from the contents
+	* 	of a text file. Use POST to send information to a server page or a CGI program for processing. POST
 	* 	requires the use of a cfhttpparam tag.
 	* @param method value to set
 	 * @throws ApplicationException
@@ -599,15 +599,15 @@ public final class Http41 extends BodyTagImpl implements Http {
 	    else if(method.equals("patch")) this.method=METHOD_PATCH;
 	    else throw new ApplicationException("invalid method type ["+(method.toUpperCase())+"], valid types are POST,GET,HEAD,DELETE,PUT,TRACE,OPTIONS,PATCH");
 	}
-	
+
 	public void setCompression(String strCompression) throws ApplicationException {
 		if(StringUtil.isEmpty(strCompression,true)) return;
 		Boolean b = Caster.toBoolean(strCompression,null);
-		
+
 		if(b!=null) compression=b.booleanValue();
 		else if(strCompression.trim().equalsIgnoreCase("none")) compression=false;
 	    else throw new ApplicationException("invalid value for attribute compression ["+strCompression+"], valid values are: true,false or none");
-		
+
 	}
 
 
@@ -619,7 +619,7 @@ public final class Http41 extends BodyTagImpl implements Http {
 			String jsessionid = pageContext.getJSessionId();
 			if(jsessionid!=null)setParam("cookie","jsessionid",jsessionid);
 		}
-		
+
 		return EVAL_BODY_INCLUDE;
 	}
 
@@ -637,13 +637,13 @@ public final class Http41 extends BodyTagImpl implements Http {
 		cfhttp.setEL(ERROR_DETAIL,"");
 		pageContext.setVariable(result,cfhttp);
 
-		// because commons 
+		// because commons
 		PrintStream out = System.out;
         try {
         	//System.setOut(new PrintStream(DevNullOutputStream.DEV_NULL_OUTPUT_STREAM));
              _doEndTag(cfhttp);
              return EVAL_PAGE;
-        } 
+        }
         catch (IOException e) {
             throw Caster.toPageException(e);
         }
@@ -653,24 +653,24 @@ public final class Http41 extends BodyTagImpl implements Http {
 
 	}
 
-	
-	
+
+
 	private void _doEndTag(Struct cfhttp) throws PageException, IOException	{
 		HttpClientBuilder builder = HttpClients.custom();
-    	
+
     	// redirect
     	if(redirect)  builder.setRedirectStrategy(new DefaultRedirectStrategy());
     	else builder.disableRedirectHandling();
-    	
+
     	// cookies
     	BasicCookieStore cookieStore = new BasicCookieStore();
     	builder.setDefaultCookieStore(cookieStore);
-    	
+
 		// clientCert
 		if(this.clientCert!=null) {
 			HTTPEngineImpl.setClientSSL(builder, this.clientCert, this.clientCertPassword);
 		}
-    	
+
     	ConfigWeb cw = pageContext.getConfig();
     	HttpRequestBase req=null;
     	HttpContext httpContext=null;
@@ -678,17 +678,17 @@ public final class Http41 extends BodyTagImpl implements Http {
     	{
     		if(StringUtil.isEmpty(charset,true)) charset=((PageContextImpl)pageContext).getWebCharset().name();
     		else charset=charset.trim();
-    		
-    		
-    	// check if has fileUploads	
+
+
+    	// check if has fileUploads
     		boolean doUploadFile=false;
     		for(int i=0;i<this.params.size();i++) {
     			if((this.params.get(i)).getType().equalsIgnoreCase("file")) {
     				doUploadFile=true;
     				break;
     			}
-    		}	
-    	
+    		}
+
     	// parse url (also query string)
     		int len=this.params.size();
     		StringBuilder sbQS=new StringBuilder();
@@ -719,19 +719,19 @@ public final class Http41 extends BodyTagImpl implements Http {
     					url+="&"+sbQS;
     				}
     			}
-    		} 
+    		}
     		catch (MalformedURLException mue) {
     			throw Caster.toPageException(mue);
     		}
-    		
+
     	// select best matching method (get,post, post multpart (file))
 
     		boolean isBinary = false;
     		boolean doMultiPart=doUploadFile || this.multiPart;
     		HttpPost post=null;
     		HttpEntityEnclosingRequest eem=null;
-    		
-    		
+
+
     		if(this.method==METHOD_GET) {
     			req=new HttpGet(url);
     		}
@@ -747,7 +747,7 @@ public final class Http41 extends BodyTagImpl implements Http {
     			HttpPut put = new HttpPut(url);
     		    req=put;
     		    eem=put;
-    		    
+
     		}
     		else if(this.method==METHOD_TRACE) {
     			isBinary=true;
@@ -768,20 +768,20 @@ public final class Http41 extends BodyTagImpl implements Http {
     			req=post;
     			eem=post;
     		}
-    		
+
     		boolean hasForm=false;
     		boolean hasBody=false;
     		boolean hasContentType=false;
     	// Set http params
     		ArrayList<FormBodyPart> parts=new ArrayList<FormBodyPart>();
-    		
+
     		StringBuilder acceptEncoding=new StringBuilder();
     		java.util.List<NameValuePair> postParam = post!=null?new ArrayList <NameValuePair>():null;
-            
+
     		for(int i=0;i<len;i++) {
     			HttpParamBean param=this.params.get(i);
     			String type=param.getType();
-    			
+
     		// URL
     			if(type.equals("url")) {
     				//listQS.add(new BasicNameValuePair(translateEncoding(param.getName(), http.charset),translateEncoding(param.getValueAsString(), http.charset)));
@@ -820,7 +820,7 @@ public final class Http41 extends BodyTagImpl implements Http {
             // Header
                 else if(type.startsWith("head")) {
                 	if(param.getName().equalsIgnoreCase("content-type")) hasContentType=true;
-                	
+
                 	if(param.getName().equalsIgnoreCase("Content-Length")) {}
                 	else if(param.getName().equalsIgnoreCase("Accept-Encoding")) {
                 		acceptEncoding.append(HttpImpl.headerValue(param.getValueAsString()));
@@ -838,23 +838,23 @@ public final class Http41 extends BodyTagImpl implements Http {
     				if(this.method==METHOD_GET) throw new ApplicationException("httpparam type file can't only be used, when method of the tag http equal post");
     				String strCT = HttpImpl.getContentType(param);
     				ContentType ct = HTTPUtil.toContentType(strCT,null);
-        			
+
     				String mt="text/xml";
     				if(ct!=null && !StringUtil.isEmpty(ct.getMimeType(),true)) mt=ct.getMimeType();
-    				
+
     				String cs=charset;
     				if(ct!=null && !StringUtil.isEmpty(ct.getCharset(),true)) cs=ct.getCharset();
-    				
-    				
+
+
     				if(doMultiPart) {
     					try {
     						Resource res = param.getFile();
     						parts.add(new FormBodyPart(
-    								param.getName(), 
+    								param.getName(),
     								new ResourceBody(res, mt, res.getName(), cs)
     						));
     						//parts.add(new ResourcePart(param.getName(),new ResourcePartSource(param.getFile()),getContentType(param),_charset));
-    					} 
+    					}
     					catch (FileNotFoundException e) {
     						throw new ApplicationException("can't upload file, path is invalid",e.getMessage());
     					}
@@ -863,13 +863,13 @@ public final class Http41 extends BodyTagImpl implements Http {
     		// XML
     			else if(type.equals("xml")) {
     				ContentType ct = HTTPUtil.toContentType(param.getMimeType(),null);
-        			
+
     				String mt="text/xml";
     				if(ct!=null && !StringUtil.isEmpty(ct.getMimeType(),true)) mt=ct.getMimeType();
-    				
+
     				String cs=charset;
     				if(ct!=null && !StringUtil.isEmpty(ct.getCharset(),true)) cs=ct.getCharset();
-    				
+
     				hasBody=true;
     				hasContentType=true;
     				req.addHeader("Content-type", mt+"; charset="+cs);
@@ -879,29 +879,29 @@ public final class Http41 extends BodyTagImpl implements Http {
     		// Body
     			else if(type.equals("body")) {
     				ContentType ct = HTTPUtil.toContentType(param.getMimeType(),null);
-        			
+
     				String mt=null;
     				if(ct!=null && !StringUtil.isEmpty(ct.getMimeType(),true)) mt=ct.getMimeType();
-    				
+
     				String cs=charset;
     				if(ct!=null && !StringUtil.isEmpty(ct.getCharset(),true)) cs=ct.getCharset();
-    				
-    				
+
+
     				hasBody=true;
     				if(eem==null)throw new ApplicationException("type body is only supported for type post and put");
     				HTTPEngineImpl.setBody(eem, param.getValue(),mt,cs);
-    				
+
     			}
                 else {
                     throw new ApplicationException("invalid type ["+type+"]");
                 }
-    		    
+
     		}
-    		
+
     		// post params
     		if(postParam!=null && postParam.size()>0)
     			post.setEntity(new org.apache.http.client.entity.UrlEncodedFormEntity(postParam,charset));
-    		
+
     		if(compression){
     			acceptEncoding.append("gzip");
     		}
@@ -910,9 +910,9 @@ public final class Http41 extends BodyTagImpl implements Http {
     			req.setHeader("TE", "deflate;q=0");
     		}
 			req.setHeader("Accept-Encoding",acceptEncoding.toString());
-    		
-    		
-    		
+
+
+
     		// multipart
     		if(doMultiPart && eem!=null) {
     			hasContentType=true;
@@ -926,7 +926,7 @@ public final class Http41 extends BodyTagImpl implements Http {
     						String str = IOUtil.toString(sb.getReader());
     						StringEntity entity = new StringEntity(str,ct);
     						eem.setEntity(entity);
-    						
+
     					} catch (IOException e) {
     						throw Caster.toPageException(e);
     					}
@@ -944,12 +944,12 @@ public final class Http41 extends BodyTagImpl implements Http {
     			}
     				//eem.setRequestEntity(new MultipartRequestEntityFlex(parts.toArray(new Part[parts.size()]), eem.getParams(),http.multiPartType));
     		}
-    		
-    		
-    		
+
+
+
     		if(hasBody && hasForm)
     			throw new ApplicationException("mixing httpparam  type file/formfield and body/XML is not allowed");
-    	
+
     		if(!hasContentType) {
     			if(isBinary) {
     				if(hasBody) req.addHeader("Content-type", "application/octet-stream");
@@ -957,15 +957,15 @@ public final class Http41 extends BodyTagImpl implements Http {
     			}
     			else {
     				if(hasBody)
-    					req.addHeader("Content-type", "text/html; charset="+charset ); 
+    					req.addHeader("Content-type", "text/html; charset="+charset );
     			}
     		}
-    		
-    		
+
+
     		// set User Agent
     			if(!HttpImpl.hasHeaderIgnoreCase(req,"User-Agent"))
     				req.setHeader("User-Agent",this.useragent);
-    		
+
     			//timeout not defined
 			if(this.timeout==null || ((int)timeout.getSeconds())<=0) { // not set
 				this.timeout=PageContextUtil.remainingTime(pageContext,true);
@@ -976,11 +976,11 @@ public final class Http41 extends BodyTagImpl implements Http {
 				if(timeout.getSeconds()>remaining.getSeconds())
 					timeout=remaining;
 			}
-			
+
 			setTimeout(builder,this.timeout);
-    		
-    		
-    		
+
+
+
     	// set Username and Password
     		if(this.username!=null) {
     			if(this.password==null)this.password="";
@@ -993,26 +993,26 @@ public final class Http41 extends BodyTagImpl implements Http {
     			}
     			else httpContext=HTTPEngineImpl.setCredentials(builder, httpHost, this.username, this.password,preauth);
     		}
-    	
+
     	// set Proxy
     		ProxyData proxy=null;
     		if(!StringUtil.isEmpty(this.proxyserver)) {
     			proxy=ProxyDataImpl.getInstance(this.proxyserver, this.proxyport, this.proxyuser, this.proxypassword) ;
     		}
-    		if(pageContext.getConfig().isProxyEnableFor(host)) { 
+    		if(pageContext.getConfig().isProxyEnableFor(host)) {
     			proxy=pageContext.getConfig().getProxyData();
     		}
     		HTTPEngineImpl.setProxy(builder, req, proxy);
-    		
+
     	}
-    	
-    	
-    	
-    	
+
+
+
+
     	CloseableHttpClient client=null;
     	try {
     	if(httpContext==null)httpContext = new BasicHttpContext();
-    		
+
 /////////////////////////////////////////// EXECUTE /////////////////////////////////////////////////
     	client = builder.build();
 		Executor41 e = new Executor41(pageContext,this,client,httpContext,req,redirect);
@@ -1021,16 +1021,16 @@ public final class Http41 extends BodyTagImpl implements Http {
 			try{
 				rsp = e.execute(httpContext);
 			}
-			
+
 			catch(Throwable t){
 				if(!throwonerror){
 					if(t instanceof SocketTimeoutException)setRequestTimeout(cfhttp);
 					else setUnknownHost(cfhttp, t);
-					
+
 					return;
 				}
 				throw toPageException(t,rsp);
-				
+
 			}
 		}
 		else {
@@ -1039,7 +1039,7 @@ public final class Http41 extends BodyTagImpl implements Http {
 				synchronized(this){//print.err(timeout);
 					this.wait(timeout.getMillis()+100);
 				}
-			} 
+			}
 			catch (InterruptedException ie) {
 				throw Caster.toPageException(ie);
 			}
@@ -1048,33 +1048,33 @@ public final class Http41 extends BodyTagImpl implements Http {
 					setUnknownHost(cfhttp,e.t);
 					return;
 				}
-				
-				throw toPageException(e.t,rsp);	
+
+				throw toPageException(e.t,rsp);
 			}
 			rsp=e.response;
 			if(!e.done){
 				req.abort();
 				if(throwonerror)
 					throw new HTTPException("408 Request Time-out","a timeout occurred in tag http",408,"Time-out",rsp==null?null:rsp.getURL());
-				setRequestTimeout(cfhttp);	
+				setRequestTimeout(cfhttp);
 				return;
-				//throw new ApplicationException("timeout");	
+				//throw new ApplicationException("timeout");
 			}
 		}
-		
+
 /////////////////////////////////////////// EXECUTE /////////////////////////////////////////////////
 		Charset responseCharset=CharsetUtil.toCharset(rsp.getCharset());
 	// Write Response Scope
 		//String rawHeader=httpMethod.getStatusLine().toString();
 			String mimetype=null;
 			String contentEncoding=null;
-			
+
 		// status code
 			cfhttp.set(STATUSCODE,((rsp.getStatusCode()+" "+rsp.getStatusText()).trim()));
 			cfhttp.set(STATUS_CODE,new Double(rsp.getStatusCode()));
 			cfhttp.set(STATUS_TEXT,(rsp.getStatusText()));
 			cfhttp.set(HTTP_VERSION,(rsp.getProtocolVersion()));
-			
+
 		//responseHeader
 			lucee.commons.net.http.Header[] headers = rsp.getAllHeaders();
 			StringBuffer raw=new StringBuffer(rsp.getStatusLine()+" ");
@@ -1082,11 +1082,11 @@ public final class Http41 extends BodyTagImpl implements Http {
 			Struct cookie;
 			Array setCookie = new ArrayImpl();
 			Query cookies=new QueryImpl(new String[]{"name","value","path","domain","expires","secure","httpOnly"},0,"cookies");
-			
+
 	        for(int i=0;i<headers.length;i++) {
 	        	lucee.commons.net.http.Header header=headers[i];
 	        	//print.ln(header);
-		        
+
 	        	raw.append(header.toString()+" ");
 	        	if(header.getName().equalsIgnoreCase("Set-Cookie")) {
 	        		setCookie.append(header.getValue());
@@ -1109,35 +1109,35 @@ public final class Http41 extends BodyTagImpl implements Http {
 	        		    arr.appendEL(header.getValue());
 	        		}
 	        	}
-	        	
+
 	        	// Content-Type
 	        	if(header.getName().equalsIgnoreCase("Content-Type")) {
 	        		mimetype=header.getValue();
 		    	    if(mimetype==null)mimetype=NO_MIMETYPE;
 	        	}
-	        	
+
 	        	// Content-Encoding
         		if(header.getName().equalsIgnoreCase("Content-Encoding")) {
         			contentEncoding=header.getValue();
         		}
-	        	
+
 	        }
 	        cfhttp.set(RESPONSEHEADER,responseHeader);
 	        cfhttp.set(KeyConstants._cookies,cookies);
 	        responseHeader.set(STATUS_CODE,new Double(rsp.getStatusCode()));
 	        responseHeader.set(EXPLANATION,(rsp.getStatusText()));
 	        if(setCookie.size()>0)responseHeader.set(SET_COOKIE,setCookie);
-	        
-	    // is text 
+
+	    // is text
 	        boolean isText=
-	        	mimetype == null ||  
+	        	mimetype == null ||
 	        	mimetype == NO_MIMETYPE || HTTPUtil.isTextMimeType(mimetype);
-	        	
-		    // is multipart 
-	        boolean isMultipart= MultiPartResponseUtils.isMultipart(mimetype);        
-	       
+
+		    // is multipart
+	        boolean isMultipart= MultiPartResponseUtils.isMultipart(mimetype);
+
 	        cfhttp.set(KeyConstants._text,Caster.toBoolean(isText));
-	        
+
 	    // mimetype charset
 	        //boolean responseProvideCharset=false;
 	        if(!StringUtil.isEmpty(mimetype,true)){
@@ -1145,7 +1145,7 @@ public final class Http41 extends BodyTagImpl implements Http {
 		        	String[] types=HTTPUtil.splitMimeTypeAndCharset(mimetype,null);
 		        	if(types[0]!=null)cfhttp.set(KeyConstants._mimetype,types[0]);
 		        	if(types[1]!=null)cfhttp.set(CHARSET,types[1]);
-	                
+
 		        }
 		        else cfhttp.set(KeyConstants._mimetype,mimetype);
 	        }
@@ -1153,7 +1153,7 @@ public final class Http41 extends BodyTagImpl implements Http {
 
 	    // File
 	        Resource file=null;
-	        
+
 	        if(strFile!=null && strPath!=null) {
 	            file=ResourceUtil.toResourceNotExisting(pageContext, strPath).getRealResource(strFile);
 	        }
@@ -1166,23 +1166,23 @@ public final class Http41 extends BodyTagImpl implements Http {
 	            if(file.isDirectory()){
 	            	file=file.getRealResource(req.getURI().getPath());// TODO was getName() ->http://hc.apache.org/httpclient-3.x/apidocs/org/apache/commons/httpclient/URI.html#getName()
 	            }
-	            
+
 	        }
 	        if(file!=null)pageContext.getConfig().getSecurityManager().checkFileLocation(file);
-	        
-	        
+
+
 	        // filecontent
 	        InputStream is=null;
 		    if(isText && getAsBinary!=GET_AS_BINARY_YES) {
 		    	String str;
                 try {
-                	
+
                 	// read content
                 	if(method!=METHOD_HEAD) {
                 		is = rsp.getContentAsStream();
 	                    if(is!=null &&HttpImpl.isGzipEncoded(contentEncoding))
 	                    	is = rsp.getStatusCode()!=200? new CachingGZIPInputStream(is):new GZIPInputStream(is);
-                	}  	
+                	}
                     try {
                     	try{
                     	str = is==null?"":IOUtil.toString(is,responseCharset);
@@ -1204,7 +1204,7 @@ public final class Http41 extends BodyTagImpl implements Http {
                 finally {
                 	IOUtil.closeEL(is);
                 }
-                    
+
                 if(str==null)str="";
 		        if(resolveurl){
 		        	//if(e.redirectURL!=null)url=e.redirectURL.toExternalForm();
@@ -1215,7 +1215,7 @@ public final class Http41 extends BodyTagImpl implements Http {
 		        	if(file!=null){
 		        		IOUtil.write(file,str,((PageContextImpl)pageContext).getWebCharset(),false);
                     }
-                } 
+                }
 		        catch (IOException e1) {}
 
 		        if(name!=null) {
@@ -1231,7 +1231,7 @@ public final class Http41 extends BodyTagImpl implements Http {
 			        	is=rsp.getContentAsStream();
 			        	is = rsp.getStatusCode()!=200?new CachingGZIPInputStream(is) :new GZIPInputStream(is);
 		        	}
-		        	
+
 		        	try {
 		        		try{
 		        			barr = is==null?new byte[0]: IOUtil.toBytes(is);
@@ -1241,7 +1241,7 @@ public final class Http41 extends BodyTagImpl implements Http {
 		        				barr = IOUtil.toBytes(((CachingGZIPInputStream)is).getRawData());
 		        			else throw eof;
 		        		}
-					} 
+					}
 		        	catch (IOException t) {
 		        		throw Caster.toPageException(t);
 					}
@@ -1253,7 +1253,7 @@ public final class Http41 extends BodyTagImpl implements Http {
 		        	try {
 		        		if(method!=METHOD_HEAD) barr = rsp.getContentAsByteArray();
 		        		else barr=new byte[0];
-					} 
+					}
 		        	catch (IOException t) {
 		        		throw Caster.toPageException(t);
 					}
@@ -1266,21 +1266,21 @@ public final class Http41 extends BodyTagImpl implements Http {
 				    	cfhttp.set(FILE_CONTENT,barr);
 				    }
 		        }
-		        else 
+		        else
 			    	cfhttp.set(FILE_CONTENT,"");
-		        
-		        
+
+
 		        if(file!=null) {
 		        	try {
 		        		if(barr!=null)IOUtil.copy(new ByteArrayInputStream(barr),file,true);
-		        	} 
+		        	}
 		        	catch (IOException ioe) {
                 		throw Caster.toPageException(ioe);
 		        	}
-		        }   
+		        }
 		    }
-	        
-	    // header		
+
+	    // header
 	        cfhttp.set(KeyConstants._header,raw.toString());
 	        if(!HttpImpl.isStatusOK(rsp.getStatusCode())){
 	        	String msg=rsp.getStatusCode()+" "+rsp.getStatusText();
@@ -1293,15 +1293,15 @@ public final class Http41 extends BodyTagImpl implements Http {
 		finally {
 			if(client!=null)client.close();
 		}
-	    
+
 	}
 
 	public static void setTimeout(HttpClientBuilder builder, TimeSpan timeout) {
 		if(timeout==null || timeout.getMillis()<=0) return;
-		
+
 		int ms = (int)timeout.getMillis();
 		if(ms<0)ms=Integer.MAX_VALUE; // long value was bigger than Integer.MAX
-		
+
     	SocketConfig sc=SocketConfig.custom()
     			.setSoTimeout(ms)
     			.build();
@@ -1313,7 +1313,7 @@ public final class Http41 extends BodyTagImpl implements Http {
 		if(arr.length==0) return;
 		int row = cookies.addRow();
 		String item;
-		
+
 		int index;
 		// name/value
 		if(arr.length>0) {
@@ -1325,7 +1325,7 @@ public final class Http41 extends BodyTagImpl implements Http {
 				cookies.setAtEL(KeyConstants._name,row, dec(item.substring(0,index)));
 				cookies.setAtEL(KeyConstants._value,row, dec(item.substring(index+1)));
 			}
-			
+
 		}
 		String n,v;
 		cookies.setAtEL("secure",row, Boolean.FALSE);
@@ -1340,7 +1340,7 @@ public final class Http41 extends BodyTagImpl implements Http {
 				v=dec(item.substring(index+1));
 				if(n.equalsIgnoreCase("expires")) {
 					DateTime d = Caster.toDate(v, false, null,null);
-					
+
 					if(d!=null) {
 						cookies.setAtEL(n,row, d);
 						continue;
@@ -1348,10 +1348,10 @@ public final class Http41 extends BodyTagImpl implements Http {
 				}
 				cookies.setAtEL(n,row, v);
 			}
-			
+
 		}
 	}
-	
+
 	public String dec(String str) {
     	return ReqRspUtil.decode(str, charset, false);
 	}
@@ -1402,7 +1402,7 @@ public final class Http41 extends BodyTagImpl implements Http {
 
     @Override
 	public void doInitBody()	{
-		
+
 	}
 
 	@Override
@@ -1415,7 +1415,7 @@ public final class Http41 extends BodyTagImpl implements Http {
 	 * @param hasBody
 	 */
 	public void hasBody(boolean hasBody) {
-	    
+
 	}
 
 	/**
@@ -1423,10 +1423,10 @@ public final class Http41 extends BodyTagImpl implements Http {
 	 */
 	public void setParam(HttpParamBean param) {
 		params.add(param);
-		
+
 	}
-	
-	
+
+
     /**
      * @param getAsBinary The getasbinary to set.
      */
@@ -1447,18 +1447,18 @@ public final class Http41 extends BodyTagImpl implements Http {
 
     /**
      * @param multipart The multipart to set.
-     * @throws ApplicationException 
+     * @throws ApplicationException
      */
     public void setMultiparttype(String multiPartType) throws ApplicationException {
     	if(StringUtil.isEmpty(multiPartType))return;
     	multiPartType=multiPartType.trim().toLowerCase();
-    	
+
     	if("form-data".equals(multiPartType)) 	this.multiPartType=MULTIPART_FORM_DATA;
     	//else if("related".equals(multiPartType)) 		this.multiPartType=MultipartRequestEntityFlex.MULTIPART_RELATED;
     	else
 			throw new ApplicationException("invalid value for attribute multiPartType ["+multiPartType+"]",
 					"attribute must have one of the following values [form-data]");
-			
+
     }
 
     /**
@@ -1497,14 +1497,14 @@ class Executor41 extends Thread {
 		this.redirect=redirect;
 		this.req=req;
 	}
-	
+
 	@Override
 	public void run(){
 		ThreadLocalPageContext.register(pc);
 		try {
 			response=execute(context);
 			done=true;
-		} 
+		}
 		catch (Throwable t) {
 			this.t=t;
 		}
@@ -1512,7 +1512,7 @@ class Executor41 extends Thread {
 			SystemUtil.notify(http);
 		}
 	}
-	
+
 	public HTTPResponse4Impl execute(HttpContext context) throws IOException	{
 		return response=new HTTPResponse4Impl(null,context,req,client.execute(req,context));
 	}

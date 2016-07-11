@@ -33,6 +33,8 @@ import java.util.Map.Entry;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 
+import lucee.loader.engine.CFMLEngine;
+import lucee.loader.engine.CFMLEngineFactory;
 import lucee.commons.io.IOUtil;
 import lucee.commons.io.TemporaryStream;
 import lucee.commons.io.res.Resource;
@@ -55,6 +57,7 @@ import lucee.runtime.op.Decision;
 import lucee.runtime.tag.Http41;
 import lucee.runtime.type.dt.TimeSpanImpl;
 import lucee.runtime.type.util.CollectionUtil;
+import lucee.runtime.util.Cast;
 
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 
@@ -337,7 +340,7 @@ public class HTTPEngineImpl {
         }
 	}
 
-    public static void setClientSSL(HttpClientBuilder builder, String clientCert, String clientCertPassword) {
+    public static void setClientSSL(HttpClientBuilder builder, String clientCert, String clientCertPassword) throws PageException {
         if(!StringUtil.isEmpty(clientCert,true)) {
             if(clientCertPassword==null)clientCertPassword="";
             try {
@@ -360,7 +363,11 @@ public class HTTPEngineImpl {
                     SSLConnectionSocketFactory.getDefaultHostnameVerifier());
 
                 builder.setSSLSocketFactory(sslsf);
-            } catch(Exception e) {}
+            } catch(Exception e) {
+                CFMLEngine engine = CFMLEngineFactory.getInstance();
+                Cast caster = engine.getCastUtil();
+                throw caster.toPageException(e);
+            }
         }
     }
 
